@@ -1,22 +1,48 @@
 package com.vv.kmm
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
+
 class SharedRepository(val url: String) {
-    fun getUser(): UserModel {
-        return UserModel(name = "David", age = 29)
+    suspend fun getUser(): UserModel {
+        return withContext(Dispatchers.IO) {
+            delay(500)
+            UserModel(name = "David", age = 29)
+        }
     }
 
-    fun getAddress(): AddressModel {
-        return AddressModel(
-            city = "London",
-            street = "Baker st.",
-            flat = 34,
-            coordinates = floatArrayOf(23.98f, 45.56f)
-        )
+    suspend fun getAddress(): AddressModel {
+        return withContext(Dispatchers.IO) {
+            delay(500)
+            AddressModel(
+                city = "London",
+                street = "Baker st.",
+                flat = 34,
+                coordinates = floatArrayOf(23.98f, 45.56f)
+            )
+        }
     }
 
-    fun getWebAddress(): WebAddress {
-        return WebAddress(url = url, port = 344)
-    }
+    fun messagesFlow(): Flow<String> = flow {
+        delay(500)
+        emit("Hi, John")
+        delay(1000)
+        emit("Hello, how are you?")
+        delay(500)
+        emit("Just fine, let's meet tomorrow?")
+        delay(1000)
+        emit("Ok. London, Baker st. at 16:00.")
+        delay(500)
+        emit("Maybe 17:00?")
+        delay(1000)
+        emit("Ok")
+    }.flowOn(Dispatchers.IO)
 }
 
 data class UserModel(
@@ -50,4 +76,10 @@ data class WebAddress(
 
 interface Printable {
     fun toPrint(): String
+}
+
+sealed class Status {
+    data object Loading : Status()
+    data class Error(val message: String) : Status()
+    data class Success(val result: Float) : Status()
 }
