@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.skie)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.nativeCoroutines)
 }
 
 kotlin {
@@ -23,6 +24,10 @@ kotlin {
             implementation(libs.coroutines.core)
 //            api("com.tomtom.roadcaptain:allshared:test-0.1.0")
         }
+    }
+
+    sourceSets.all {
+        languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
     }
 }
 

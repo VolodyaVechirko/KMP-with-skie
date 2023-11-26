@@ -39,3 +39,5 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 toolchainResolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version = "0.7.0" }
 skie = { id = "co.touchlab.skie", version = "0.5.2" }
+nativeCoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version = "1.0.0-ALPHA-20" }
+ksp = { id = "com.google.devtools.ksp", version = "1.9.20-1.0.14" }

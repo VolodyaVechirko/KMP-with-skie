@@ -1,5 +1,6 @@
 package com.vv.kmm
 
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 
 class SharedRepository(val url: String) {
+    @NativeCoroutines
     suspend fun getUser(): UserModel {
         return withContext(Dispatchers.IO) {
             delay(500)
@@ -17,6 +19,7 @@ class SharedRepository(val url: String) {
         }
     }
 
+    @NativeCoroutines
     suspend fun getAddress(): AddressModel {
         return withContext(Dispatchers.IO) {
             delay(500)
@@ -29,6 +32,7 @@ class SharedRepository(val url: String) {
         }
     }
 
+    @NativeCoroutines
     fun messagesFlow(): Flow<String> = flow {
         delay(500)
         emit("Hi, John")

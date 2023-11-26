@@ -1,5 +1,7 @@
 import SwiftUI
 import Shared
+import KMPNativeCoroutinesCore
+import KMPNativeCoroutinesAsync
 
 struct ContentView: View {
     private let message = Greeting().greet()
@@ -45,8 +47,8 @@ struct ContentView: View {
         .onAppear {
             chatVM.load()
             Task {
-                user = try? await repo.getUser()
-                address = try? await repo.getAddress()
+                user = try? await asyncFunction(for: repo.getUser())
+                address = try? await asyncFunction(for: repo.getAddress())
             }
         }
         .onDisappear {
@@ -69,11 +71,11 @@ class ChatViewModel: ObservableObject {
     var chat: [String] = []
 
     func load() {
-        task = Task {
-            for await it in repo.messagesFlow() {
-                self.chat.append(it)
-            }
-        }
+         Task {
+             for try await it in asyncSequence(for: repo.messagesFlow()) {
+                 self.chat.append(it)
+             }
+         }
     }
     
     func cancel() {
@@ -81,10 +83,15 @@ class ChatViewModel: ObservableObject {
     }
     
     func test() {
+        //            (onResult: @escaping NativeCallback<Result, Unit>,
+        //             onError: @escaping NativeCallback<Failure, Unit>,
+        //             onCancelled: @escaping NativeCallback<Failure, Unit>
+        //            ) -> NativeCancellable<Unit>
+        
         Task {
-//            let sharedFlow: SkieSwiftSharedFlow<String>
-            let flow: SkieSwiftFlow<String> = repo.messagesFlow()
-            for await it in flow {
+            let lambda: NativeFlow<String, Error, KotlinUnit> = repo.messagesFlow()
+            let sequence: NativeFlowAsyncSequence<String, Error, KotlinUnit> = asyncSequence(for: lambda)
+            for try await it in sequence {
                 print(it)
             }
         }
