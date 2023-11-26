@@ -2,17 +2,17 @@ import SwiftUI
 import Shared
 
 struct ContentView: View {
-    private var message = Greeting().greet()
-    private var repo = SharedRepository(url: "cloud.ios.com")
+    private let message = Greeting().greet()
+    private let repo = SharedRepository(url: "cloud.ios.com")
+    
+    @ObservedObject
+    private var chatVM = ChatViewModel()
     
     @State
     private var user: UserModel?
     
     @State
     private var address: AddressModel?
-    
-    @StateObject                         // How to pass self.repo??
-    var chatVM = ChatViewModel(repository: SharedRepository(url: "test"))
     
     var body: some View {
         VStack {
@@ -49,6 +49,9 @@ struct ContentView: View {
                 address = try? await repo.getAddress()
             }
         }
+        .onDisappear {
+            chatVM.cancel()
+        }
     }
 }
 
@@ -59,25 +62,27 @@ struct ContentView: View {
 
 @MainActor
 class ChatViewModel: ObservableObject {
-    let repo: SharedRepository
-
-    init(repository: SharedRepository) {
-        self.repo = repository
-    }
+    private let repo = SharedRepository(url: "test")
+    private var task: Task<Void, Never>?
 
     @Published
     var chat: [String] = []
 
     func load() {
-        Task {
+        task = Task {
             for await it in repo.messagesFlow() {
                 self.chat.append(it)
             }
         }
     }
     
+    func cancel() {
+         task?.cancel()
+    }
+    
     func test() {
         Task {
+//            let sharedFlow: SkieSwiftSharedFlow<String>
             let flow: SkieSwiftFlow<String> = repo.messagesFlow()
             for await it in flow {
                 print(it)
@@ -86,35 +91,6 @@ class ChatViewModel: ObservableObject {
     }
 }
 
-// Kotlin Enum -> Swift Enum
-// Kotlin Sealed class -> Swift Enum with associated value
-
-func testSealedClass(status: Status) {
-    switch onEnum(of: status) {
-    case .loading:
-        print("loading...")
-    case .error(let data):
-        print("Error: \(data.message)")
-    case .success(let data):
-        print("Success: \(data.result)")
-    }
-}
-
-//extension ContentView {
-//    @MainActor
-//    class ViewModel: ObservableObject {
-//        @Published
-//        var greetings: [String] = []
-//
-//        func startObserving() {
-//            Task {
-//                for await phrase in Greeting().greet() {
-//                    self.greetings.append(phrase)
-//                }
-//            }
-//        }
-//    }
-//}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
