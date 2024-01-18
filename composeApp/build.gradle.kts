@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsCompose)
 }
 
 kotlin {
@@ -10,17 +9,14 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.compose.material)
+            implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
             implementation(projects.shared)
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-            implementation(compose.components.resources)
         }
     }
 }
@@ -28,10 +24,6 @@ kotlin {
 android {
     namespace = "org.example.project"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
         applicationId = "org.example.project"
