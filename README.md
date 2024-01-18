@@ -12,4 +12,7 @@ This is a Kotlin Multiplatform project targeting Android, iOS.
 * `/iosApp` contains iOS application. It's built with SwiftUI and relies on data from `/shared` module.
 
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
+
+To create the project Kotlin Multiplatform project wizard was used.
+https://kotlinlang.org/docs/whatsnew1920.html#new-project-wizard
