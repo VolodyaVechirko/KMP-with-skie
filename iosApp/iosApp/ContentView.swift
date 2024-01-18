@@ -3,7 +3,7 @@ import Shared
 
 struct ContentView: View {
     private let message = Greeting().greet()
-    private let repo = SharedRepository(url: "cloud.ios.com")
+    private let repo = SharedRepository(url: "www.cloud.ios.com")
     
     @ObservedObject
     private var chatVM = ChatViewModel()
@@ -32,6 +32,9 @@ struct ContentView: View {
             // Wait for suspend function
             Text("Address: \(address?.format() ?? "loading...")")
             
+            // Print timer
+            Text("Time: \(chatVM.timer) seconds")
+            
             // Observe flow on UI as chat messages
             VStack(alignment: .leading, spacing: 10) {
                 ForEach(chatVM.chat, id: \.self) { it in
@@ -45,13 +48,20 @@ struct ContentView: View {
         .onAppear {
             chatVM.load()
             Task {
-                user = try? await repo.getUser()
-                address = try? await repo.getAddress()
+                user = try? await repo.getUser(userId: 99)
+                address = try? await repo.getAddress(short: true)
             }
         }
         .onDisappear {
             chatVM.cancel()
         }
+    }
+}
+
+// Build extension to Kotlin model in Swift
+extension AddressModel {
+    func formatSwift() -> String {
+        "\(street) \(String(flat)), Swift"
     }
 }
 
@@ -64,20 +74,31 @@ struct ContentView: View {
 class ChatViewModel: ObservableObject {
     private let repo = SharedRepository(url: "test")
     private var task: Task<Void, Never>?
-
+    private var task2: Task<Void, Never>?
+    
     @Published
     var chat: [String] = []
-
+    
+    @Published
+    var timer: Int = 0
+    
     func load() {
         task = Task {
             for await it in repo.messagesFlow() {
                 self.chat.append(it)
             }
         }
+        
+        task2 = Task {
+            for await it in repo.sharedFlow {
+                self.timer = it.intValue
+            }
+        }
     }
     
     func cancel() {
-         task?.cancel()
+        task?.cancel()
+        task2?.cancel()
     }
     
     func test() {

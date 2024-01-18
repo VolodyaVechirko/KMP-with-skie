@@ -1,23 +1,27 @@
 package com.vv.kmm
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.withContext
 
 class SharedRepository(val url: String) {
-    suspend fun getUser(): UserModel {
+    // Emulates some network request
+    suspend fun getUser(userId: Int): UserModel {
         return withContext(Dispatchers.IO) {
             delay(500)
             UserModel(name = "David", age = 29)
         }
     }
 
-    suspend fun getAddress(): AddressModel {
+    // Emulates some network request
+    suspend fun getAddress(short: Boolean): AddressModel {
         return withContext(Dispatchers.IO) {
             delay(500)
             AddressModel(
@@ -29,6 +33,7 @@ class SharedRepository(val url: String) {
         }
     }
 
+    // Emulates flow which accumulates messages of some chat
     fun messagesFlow(): Flow<String> = flow {
         delay(500)
         emit("Hi, John")
@@ -43,43 +48,13 @@ class SharedRepository(val url: String) {
         delay(1000)
         emit("Ok")
     }.flowOn(Dispatchers.IO)
-}
 
-data class UserModel(
-    val name: String,
-    val age: Int,
-) : Printable {
-    override fun toPrint(): String {
-        return "$name, age $age"
-    }
-}
 
-data class AddressModel(
-    val city: String,
-    val street: String,
-    val flat: Int,
-    val coordinates: FloatArray
-) : Printable {
-    override fun toPrint(): String = this.toString()
-
-    fun format(): String {
-        return "$street $flat, $city"
-    }
-}
-
-data class WebAddress(
-    val url: String,
-    val port: Int,
-) : Printable {
-    override fun toPrint(): String = this.toString()
-}
-
-interface Printable {
-    fun toPrint(): String
-}
-
-sealed class Status {
-    data object Loading : Status()
-    data class Error(val message: String) : Status()
-    data class Success(val result: Float) : Status()
+    // Emulates sharedFlow which emits some data regardless there is subscribers
+    val sharedFlow: Flow<Int> = flow {
+        repeat(1000) {
+            emit(it)
+            delay(500)
+        }
+    }.shareIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly)
 }
