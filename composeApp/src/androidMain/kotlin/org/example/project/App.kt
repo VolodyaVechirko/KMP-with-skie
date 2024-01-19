@@ -85,10 +85,12 @@ fun App(modifier: Modifier) {
             // Print timer
             Text("Time: $timerTick seconds")
 
+            // Observe flow on UI as chat messages
             Spacer(modifier = Modifier.height(16.dp))
             Column {
                 chatList.forEach {
                     Text(text = "--: $it")
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
